@@ -23,6 +23,6 @@
   (let [c (r/tcp-client {:host host :port port})
         cores (cores-status solr-url)]
     (-> c (r/send-events (conj (->events cores event-host)
-                               {:host event-host :service "numCores" :state "ok" :metric (count cores) :tags ["solr"]}))
+                               {:host event-host :service "solr_numCores" :state "ok" :metric (count cores) :tags ["solr"]}))
         (deref (* timeout 1000) ::timeout))
     (r/close! c)))
