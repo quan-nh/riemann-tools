@@ -27,6 +27,6 @@
                                    {:host event-host :service "solr_numCores" :state "ok" :metric (count cores) :tags ["solr"]}))
             (deref (* timeout 1000) ::timeout)))
       (catch Exception e
-        (-> c (r/send-event {:host event-host :service "solr_exception" :state "critical" :metric 0 :description (.getMessage e) :tags ["solr exception"]})
+        (-> c (r/send-event {:host event-host :service "solr_exception" :state "critical" :metric 0 :description (.getMessage e) :tags ["solr" "exception"]})
             (deref (* timeout 1000) ::timeout))))
     (r/close! c)))
