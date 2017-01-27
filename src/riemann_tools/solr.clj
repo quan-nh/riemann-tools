@@ -20,9 +20,13 @@
 (defn status
   "Send Solr Cores status to riemann server"
   [{:keys [host port event-host solr-url timeout]}]
-  (let [c (r/tcp-client {:host host :port port})
-        cores (cores-status solr-url)]
-    (-> c (r/send-events (conj (->events cores event-host)
-                               {:host event-host :service "solr_numCores" :state "ok" :metric (count cores) :tags ["solr"]}))
-        (deref (* timeout 1000) ::timeout))
+  (let [c (r/tcp-client {:host host :port port})]
+    (try
+      (let [cores (cores-status solr-url)]
+        (-> c (r/send-events (conj (->events cores event-host)
+                                   {:host event-host :service "solr_numCores" :state "ok" :metric (count cores) :tags ["solr"]}))
+            (deref (* timeout 1000) ::timeout)))
+      (catch Exception e
+        (-> c (r/send-event {:host event-host :service "solr_exception" :state "critical" :metric 0 :description (.getMessage e) :tags ["solr exception"]})
+            (deref (* timeout 1000) ::timeout))))
     (r/close! c)))
